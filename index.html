@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Calistenia App - Rutina de Entrenamiento</title>
+  <meta name="description" content="Aplicación PWA de Calistenia para la rutina simplificada de 3 días a la semana.">
+  <meta name="theme-color" content="#12131C">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./assets/icon-192.svg">
+  <link rel="apple-touch-icon" href="./assets/icon-192.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="app" class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v8H2z"></path><path d="M6 16v3"></path><path d="M14 16v3"></path></svg>
+        </div>
+        <div>
+          <h1 class="app-title">CALISTENIA</h1>
+          <span class="app-subtitle">Rutina 3 Días / Sem</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-wakelock" class="icon-btn" title="Mantener pantalla encendida" aria-label="Pantalla encendida">
+          <svg class="icon-bulb" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg>
+        </button>
+        <button id="btn-sound" class="icon-btn active" title="Sonido activado" aria-label="Alternar sonido">
+          <svg class="icon-sound-on" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          <svg class="icon-sound-off hidden" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- TAB 1: ENTRENAR (Workout Mode) -->
+      <section id="tab-workout" class="tab-pane active">
+        
+        <!-- Idle State View -->
+        <div id="workout-idle-view" class="card hero-card">
+          <div class="hero-badge">Lun • Mié • Vie</div>
+          <h2 class="hero-title">¡Listo para tu entrenamiento de hoy!</h2>
+          <p class="hero-desc">Sigue la rutina guiada serie a serie con tiempos de descanso automáticos y asistentes de tempo.</p>
+          
+          <div class="routine-quick-list">
+            <div class="quick-item"><span>1. Calentamiento</span> <span class="badge">60s Desc.</span></div>
+            <div class="quick-item"><span>2. Dominadas Excéntricas</span> <span class="badge badge-accent">120s Desc.</span></div>
+            <div class="quick-item"><span>3. Flexiones Estándar</span> <span class="badge badge-accent">120s Desc.</span></div>
+            <div class="quick-item"><span>4. Push-up Plus</span> <span class="badge">90s Desc.</span></div>
+            <div class="quick-item"><span>5. Hollow Body Hold</span> <span class="badge">90s Desc.</span></div>
+          </div>
+
+          <button id="btn-start-workout" class="btn btn-primary btn-xl width-full">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Comenzar Rutina
+          </button>
+        </div>
+
+        <!-- Active Workout View -->
+        <div id="workout-active-view" class="hidden">
+          
+          <!-- Top Progress Bar -->
+          <div class="workout-progress-header card-sm">
+            <div class="progress-info">
+              <span id="workout-step-label" class="step-label">Ejercicio 1 de 5</span>
+              <span id="workout-timer-clock" class="timer-clock">00:00</span>
+            </div>
+            <div class="progress-bar-container">
+              <div id="workout-progress-fill" class="progress-bar-fill" style="width: 20%;"></div>
+            </div>
+          </div>
+
+          <!-- Current Exercise Card -->
+          <div class="card exercise-active-card">
+            <div class="exercise-header">
+              <span id="ex-category-badge" class="badge badge-category">Calentamiento</span>
+              <h2 id="ex-title" class="exercise-name">Rotaciones & Scapular Pull-ups</h2>
+            </div>
+
+            <!-- Target info pills -->
+            <div class="target-pills">
+              <div class="pill">
+                <span class="pill-label">Target Series</span>
+                <span id="ex-target-sets" class="pill-val">2 Series</span>
+              </div>
+              <div class="pill">
+                <span class="pill-label">Repeticiones / Tiempo</span>
+                <span id="ex-target-reps" class="pill-val">8-10 reps</span>
+              </div>
+              <div class="pill">
+                <span class="pill-label">Descanso</span>
+                <span id="ex-target-rest" class="pill-val">60s</span>
+              </div>
+            </div>
+
+            <!-- Execution Instructions box -->
+            <div class="instruction-box">
+              <h4 class="instruction-title">💡 ¿Cómo se hace?</h4>
+              <p id="ex-instruction-text">Cuélgate de la barra con los brazos estirados. Sin doblar los codos, empuja tus hombros hacia abajo para elevar ligeramente tu cuerpo.</p>
+            </div>
+
+            <!-- Special Assistant Tools (Tempo/Hold count down) -->
+            <div id="tempo-assistant-container" class="tempo-assistant hidden">
+              <div class="tempo-header">
+                <span id="tempo-title">Asistente de Ritmo (Tempo)</span>
+              </div>
+              <div class="tempo-display">
+                <span id="tempo-seconds" class="tempo-num">5</span>
+                <span id="tempo-sub" class="tempo-label">segundos de descenso</span>
+              </div>
+              <button id="btn-trigger-tempo" class="btn btn-secondary btn-sm">
+                ⏱️ Iniciar Conteo de Tempo
+              </button>
+            </div>
+
+            <!-- Interactive Set Logger -->
+            <div class="sets-tracker-area">
+              <h4 class="section-subtitle">Progreso de Series</h4>
+              <div id="sets-list" class="sets-list">
+                <!-- Dynamic Series items rendered here -->
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="workout-controls">
+              <button id="btn-prev-exercise" class="btn btn-outline" disabled>
+                ← Anterior
+              </button>
+              <button id="btn-next-exercise" class="btn btn-primary flex-1">
+                Siguiente Ejercicio →
+              </button>
+            </div>
+            
+            <button id="btn-finish-workout" class="btn btn-text btn-danger-text width-full margin-top-sm">
+              Cancelar o Finalizar Entrenamiento
+            </button>
+          </div>
+        </div>
+
+        <!-- Completed Workout Celebration View -->
+        <div id="workout-completed-view" class="card hero-card text-center hidden">
+          <div class="trophy-icon">🏆</div>
+          <h2 class="hero-title">¡Entrenamiento Completado!</h2>
+          <p class="hero-desc">Excelente trabajo superando la rutina de hoy. Has fortalecido tus músculos y tendones de forma segura.</p>
+
+          <div class="stats-grid margin-vertical-md">
+            <div class="stat-card">
+              <span class="stat-num" id="summary-duration">00:00</span>
+              <span class="stat-label">Duración</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-num" id="summary-sets">14</span>
+              <span class="stat-label">Series Realizadas</span>
+            </div>
+          </div>
+
+          <button id="btn-done-summary" class="btn btn-primary btn-xl width-full">
+            Guardar y Volver al Inicio
+          </button>
+        </div>
+
+      </section>
+
+      <!-- TAB 2: RUTINA COMPLETA (Guide & Tech) -->
+      <section id="tab-routine" class="tab-pane">
+        <div class="tab-header-title">
+          <h2>Rutina Completa</h2>
+          <p>Entrenamiento de 3 días a la semana (Lunes, Miércoles y Viernes)</p>
+        </div>
+
+        <div class="routine-detail-list">
+          
+          <!-- Bloque 1 -->
+          <article class="card exercise-detail-card">
+            <div class="card-badge-row">
+              <span class="badge badge-category">1. Preparación</span>
+              <span class="badge">Descanso: 60s</span>
+            </div>
+            <h3 class="exercise-detail-title">Calentamiento</h3>
+            <ul class="detail-bullets">
+              <li><strong>Rotaciones articulares (1 min):</strong> Mueve hombros, cuello y muñecas lentamente para lubricar las articulaciones.</li>
+              <li><strong>Depresiones escapulares colgado (Scapular Pull-ups):</strong> 2 series de 8 a 10 repeticiones.</li>
+            </ul>
+            <div class="technique-card">
+              <strong>¿Cómo se hace?</strong>
+              <p>Cuélgate de la barra con los brazos totalmente estirados. Sin doblar codos, empuja tus hombros hacia abajo (alejándolos de las orejas) para elevar un poco tu cuerpo.</p>
+            </div>
+          </article>
+
+          <!-- Bloque 2 -->
+          <article class="card exercise-detail-card">
+            <div class="card-badge-row">
+              <span class="badge badge-accent">2. Tirón (Espalda & Brazos)</span>
+              <span class="badge">Descanso: 120s</span>
+            </div>
+            <h3 class="exercise-detail-title">Dominadas Excéntricas (Negativas lentas)</h3>
+            <p class="target-summary"><strong>3 series de 4 a 5 repeticiones</strong></p>
+            <div class="technique-card">
+              <strong>¿Cómo se hace?</strong>
+              <p>Súbete a la barra dando un salto o usando una silla hasta que la barbilla supere la barra. Desde ahí, <strong>baja de forma hiper-lenta</strong>, tardando exactamente <strong>5 segundos</strong> en descender hasta quedar colgado.</p>
+            </div>
+          </article>
+
+          <!-- Bloque 3 -->
+          <article class="card exercise-detail-card">
+            <div class="card-badge-row">
+              <span class="badge badge-accent">3. Empuje (Pecho, Hombros, Tríceps)</span>
+              <span class="badge">Descanso: 120s</span>
+            </div>
+            <h3 class="exercise-detail-title">Flexiones Estándar</h3>
+            <p class="target-summary"><strong>3 series de 8 a 12 repeticiones</strong></p>
+            <div class="technique-card">
+              <strong>¿Cómo se hace?</strong>
+              <p>Manos a la anchura de hombros. Controla la bajada en 2s, sin pausa abajo y sube en 1s. <em>(Si cuesta mantener la técnica, apoya las rodillas en el suelo)</em>.</p>
+            </div>
+          </article>
+
+          <!-- Bloque 4 -->
+          <article class="card exercise-detail-card">
+            <div class="card-badge-row">
+              <span class="badge badge-category">4. Hombro & Postura</span>
+              <span class="badge">Descanso: 90s</span>
+            </div>
+            <h3 class="exercise-detail-title">Push-up Plus</h3>
+            <p class="target-summary"><strong>3 series de 10 a 15 repeticiones</strong></p>
+            <div class="technique-card">
+              <strong>¿Cómo se hace?</strong>
+              <p>En posición de plancha. Con codos totalmente estirados en todo momento, empuja el suelo con fuerza para alejar el cuerpo, de modo que tus omóplatos se separen por completo.</p>
+            </div>
+          </article>
+
+          <!-- Bloque 5 -->
+          <article class="card exercise-detail-card">
+            <div class="card-badge-row">
+              <span class="badge badge-category">5. Abdomen & Core</span>
+              <span class="badge">Descanso: 90s</span>
+            </div>
+            <h3 class="exercise-detail-title">Hollow Body Hold (Cuerpo Hueco)</h3>
+            <p class="target-summary"><strong>3 series de 20 a 30 segundos</strong></p>
+            <div class="technique-card">
+              <strong>¿Cómo se hace?</strong>
+              <p>Tumbado boca arriba, <strong>aplasta la zona lumbar firmemente contra el suelo</strong>. Despega ligeramente omóplatos y piernas estiradas del suelo manteniendo la tensión en el abdomen.</p>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- TAB 3: REGLAS DE ORO (Safety) -->
+      <section id="tab-rules" class="tab-pane">
+        <div class="tab-header-title">
+          <h2>⚠️ Reglas de Oro</h2>
+          <p>Instrucciones vitales para prevenir lesiones y entrenar con máxima eficacia.</p>
+        </div>
+
+        <div class="rules-container">
+          
+          <div class="card rule-card border-left-warning">
+            <div class="rule-header">
+              <div class="rule-icon">🖐️</div>
+              <h3>1. Protege tus Muñecas</h3>
+            </div>
+            <p class="rule-desc">
+              Al hacer flexiones, no dejes caer el peso muerto en la palma de la mano. Haz una ligera <strong>"garra" con tus manos</strong>, presionando la yema de tus dedos contra el suelo.
+            </p>
+            <div class="rule-tip">
+              💡 <em>Si sientes molestias, apoya directamente los <strong>puños cerrados (nudillos)</strong> para mantener la muñeca neutra y recta.</em>
+            </div>
+          </div>
+
+          <div class="card rule-card border-left-warning">
+            <div class="rule-header">
+              <div class="rule-icon">🦴</div>
+              <h3>2. Protege tus Hombros</h3>
+            </div>
+            <p class="rule-desc">
+              En las dominadas negativas, <strong>nunca intentes subir o colgarte con los hombros pegados a las orejas</strong>. 
+            </p>
+            <div class="rule-tip">
+              💡 <em>Realiza siempre primero la depresión escapular (llevar hombros hacia abajo) para crear espacio en la articulación y evitar pinzamientos.</em>
+            </div>
+          </div>
+
+          <div class="card rule-card border-left-warning">
+            <div class="rule-header">
+              <div class="rule-icon">✊</div>
+              <h3>3. No Fuerces el Agarre</h3>
+            </div>
+            <p class="rule-desc">
+              En las dominadas, si sientes que tus dedos resbalan y pierdes fuerza en las manos, <strong>termina la serie de inmediato</strong>.
+            </p>
+            <div class="rule-tip">
+              💡 <em>No entrenes hasta que las manos se abran solas por cansancio para proteger los tendones de la mano y antebrazo.</em>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 4: HISTORIAL (Stats & Logs) -->
+      <section id="tab-history" class="tab-pane">
+        <div class="tab-header-title">
+          <h2>Historial de Entrenamientos</h2>
+          <p>Tus entrenamientos guardados en el dispositivo.</p>
+        </div>
+
+        <div class="stats-overview-grid">
+          <div class="card stat-box">
+            <span id="stat-total-workouts" class="stat-value">0</span>
+            <span class="stat-label-sub">Sesiones Completadas</span>
+          </div>
+          <div class="card stat-box">
+            <span id="stat-last-date" class="stat-value-sm">Ninguna</span>
+            <span class="stat-label-sub">Último Entrenamiento</span>
+          </div>
+        </div>
+
+        <div class="history-list-header">
+          <h3>Sesiones Recientes</h3>
+          <button id="btn-clear-history" class="btn btn-sm btn-text btn-danger-text">Borrar Historial</button>
+        </div>
+
+        <div id="history-logs-container" class="history-logs-container">
+          <div class="empty-state">
+            <p>Aún no has registrado entrenamientos. ¡Inicia una sesión en la pestaña "Entrenar"!</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Floating Rest Timer Overlay Modal -->
+    <div id="rest-timer-modal" class="modal-overlay hidden">
+      <div class="modal-card rest-timer-card">
+        <div class="rest-title">TIEMPO DE DESCANSO</div>
+        <div class="rest-subtitle" id="rest-next-up">Próxima serie: Serie 2</div>
+
+        <div class="timer-ring-wrapper">
+          <svg class="ring-svg" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+            <circle id="timer-ring-fill" class="ring-fill" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <div class="timer-text-overlay">
+            <span id="modal-rest-seconds" class="timer-number">120</span>
+            <span class="timer-unit">SEG</span>
+          </div>
+        </div>
+
+        <div class="modal-time-controls">
+          <button id="btn-rest-minus" class="btn btn-circle-sm">-15s</button>
+          <button id="btn-rest-pause" class="btn btn-secondary">Pausar</button>
+          <button id="btn-rest-plus" class="btn btn-circle-sm">+15s</button>
+        </div>
+
+        <button id="btn-rest-skip" class="btn btn-primary width-full margin-top-md">
+          Saltar Descanso y Continuar →
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="tab-workout">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v8H2z"></path><path d="M6 16v3"></path><path d="M14 16v3"></path></svg>
+        <span>Entrenar</span>
+      </button>
+      <button class="nav-item" data-tab="tab-routine">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        <span>Rutina</span>
+      </button>
+      <button class="nav-item" data-tab="tab-rules">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <span>Reglas</span>
+      </button>
+      <button class="nav-item" data-tab="tab-history">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <span>Historial</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
